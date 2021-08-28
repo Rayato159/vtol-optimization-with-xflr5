@@ -1,16 +1,17 @@
 #Create by HashTable159
-#Edit this function before used
+#Edit objective function before used.
 
 import numpy as np
 import time
+import collections
 from ObjectiveFunction import Obj_Func
 
 class GA:
     def __init__(self,
                 chorosome_length=16, 
                 bits=8,
-                population_num=50, 
-                generation=30, 
+                population_num=100, 
+                generation=100, 
                 crossover_prob=0.9, 
                 mutation_prob=0.03, 
                 k=3):
@@ -125,7 +126,7 @@ class GA:
         for gen in range(self.generation):
             new_population = np.empty((0, self.chorosome_length))
 
-            for popula in range(int(self.population_num/2)):
+            for _ in range(int(self.population_num/2)):
                 parents = self.select_parents(pool_of_generation)
                 childs = self.crossover(parents)
                 mutated_childs = self.mutation(childs)
@@ -136,25 +137,34 @@ class GA:
                 print(f"Obj_value_for_mutated_chlid #2 at generation #{gen+1} : {mutated_childs[1]}, {self.decode(mutated_childs[0])[1]}")
             
             pool_of_generation = new_population
+            count = gen+1
 
             print()
             print(f"Generation #{gen+1}")
+            dupe_check = []
             for index, element in enumerate(new_population):
                 print(f"LINE\t{index+1}\tf={self.decode(element)[1]}")
+                dupe_check.append(self.decode(element)[1])
                 best_of_all_stack = np.vstack([best_of_all_stack, self.decode(element)])
 
-            if gen == self.generation-1:
+            check_for_next_gen = [count for _, count in collections.Counter(dupe_check).items()]
+            if float(max(check_for_next_gen)/50) > 0.4:
                 for index, element in enumerate(new_population):
                     best_of_generation_stack = np.vstack([best_of_generation_stack, self.decode(element)[1]])
                 
                 best_of_generation = self.decode(new_population[np.argmin(best_of_generation_stack)])
-            
-            count = gen+1
+                break
 
-        best_of_all_find = best_of_all_stack[0][1]
-        for index, _ in enumerate(best_of_all_stack):
-            if best_of_all_find > best_of_all_stack[index][1]:
-                best_of_all = best_of_all_stack[index]
+            elif gen == self.generation-1:
+                for index, element in enumerate(new_population):
+                    best_of_generation_stack = np.vstack([best_of_generation_stack, self.decode(element)[1]])
+                
+                best_of_generation = self.decode(new_population[np.argmin(best_of_generation_stack)])
+
+        best_of_all_find = np.empty((0, 1))
+        for item in best_of_all_stack:
+            best_of_all_find = np.vstack([best_of_all_find, item[1]])
+        best_of_all = best_of_all_stack[np.argmin(best_of_all_find)]
 
         end_time = time.time()
         execution_time = end_time - start_time
