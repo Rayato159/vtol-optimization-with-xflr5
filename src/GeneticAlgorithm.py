@@ -14,7 +14,8 @@ class GA:
                 generation=100, 
                 crossover_prob=0.9, 
                 mutation_prob=0.03, 
-                k=3):
+                k=3,
+                rate=0.4):
 
         self.bits = bits
         self.chorosome_length= chorosome_length
@@ -24,6 +25,7 @@ class GA:
         self.mutation_prob = mutation_prob
         self.k = int(k)
         self.obj_func = Obj_Func()
+        self.rate = rate
     
     def getPopulation(self):
         return np.random.randint(2, size=(self.population_num, self.chorosome_length))
@@ -148,7 +150,7 @@ class GA:
                 best_of_all_stack = np.vstack([best_of_all_stack, self.decode(element)])
 
             check_for_next_gen = [count for _, count in collections.Counter(dupe_check).items()]
-            if float(max(check_for_next_gen)/50) > 0.4:
+            if float(max(check_for_next_gen)/50) > self.rate:
                 for index, element in enumerate(new_population):
                     best_of_generation_stack = np.vstack([best_of_generation_stack, self.decode(element)[1]])
                 
