@@ -172,7 +172,7 @@ class GA:
         execution_time = end_time - start_time
 
         print()
-        print(f"Execution_time:\t{round(execution_time, 2)}, @Generation: {count}")
+        print(f"Execution_time:\t{round(execution_time, 2)} sec, @Generation: {count}")
         print()
         print(f"BEST_OF:\t\tPARAMETERS:\t\t\tOBJ_VALUE:")
         print(f"Generation\t\t{best_of_generation[0]}\t\t{best_of_generation[1]}")
