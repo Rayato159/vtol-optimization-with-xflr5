@@ -3,6 +3,8 @@
 
 import numpy as np
 import time
+
+from numpy.core.arrayprint import dtype_is_implied
 from ObjectiveFunction import Obj_Func
 
 class GA:
@@ -163,4 +165,4 @@ class GA:
         print(f"Generation\t\t{best_of_generation[0]}\t\t{best_of_generation[1]}")
         print(f"All_time\t\t{best_of_all[0]}\t\t{best_of_all[1]}")
 
-        return best_of_generation, best_of_all
+        return best_of_generation[0], best_of_generation[1], best_of_all[0], best_of_all[1]
