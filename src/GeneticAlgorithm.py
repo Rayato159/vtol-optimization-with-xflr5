@@ -6,10 +6,10 @@ import time
 from ObjectiveFunction import Obj_Func
 
 class GA:
-    def __init__(self, 
+    def __init__(self,
                 chorosome_length=16, 
                 bits=8,
-                population_num=100, 
+                population_num=50, 
                 generation=30, 
                 crossover_prob=0.9, 
                 mutation_prob=0.03, 
@@ -40,8 +40,8 @@ class GA:
 
     def decode(self, 
                binary, 
-               lower_bounds=[-5, -5], 
-               upper_bounds=[5, 5]
+               lower_bounds=[-2, -2], 
+               upper_bounds=[2, 2]
                ):
 
         decode = []
@@ -110,17 +110,22 @@ class GA:
         return childs
     
     def run(self):
-        pool_of_solution = self.getPopulation()
+        pool_of_generation = self.getPopulation()
+        best_of_generation_stack = np.empty((0, 1))
+        best_of_generation = np.empty((0, 2))
+        best_of_all_stack = np.empty((0, 2))
+        best_of_all = np.empty((0, 2))
         start_time = time.time()
         
-        for index, element in enumerate(pool_of_solution):
+        print("First generation")
+        for index, element in enumerate(pool_of_generation):
             print(f"LINE\t{index+1}\tf={self.decode(element)[1]}")
 
         for gen in range(self.generation):
             new_population = np.empty((0, self.chorosome_length))
 
             for popula in range(int(self.population_num/2)):
-                parents = self.select_parents(pool_of_solution)
+                parents = self.select_parents(pool_of_generation)
                 childs = self.crossover(parents)
                 mutated_childs = self.mutation(childs)
                 new_population = np.vstack([new_population, mutated_childs])
@@ -129,14 +134,33 @@ class GA:
                 print(f"Obj_value_for_mutated_chlid #1 at generation #{gen+1} : {mutated_childs[0]}, {self.decode(mutated_childs[0])[1]}")
                 print(f"Obj_value_for_mutated_chlid #2 at generation #{gen+1} : {mutated_childs[1]}, {self.decode(mutated_childs[0])[1]}")
             
-            pool_of_solution = new_population
+            pool_of_generation = new_population
 
             print()
+            print(f"Generation #{gen+1}")
             for index, element in enumerate(new_population):
                 print(f"LINE\t{index+1}\tf={self.decode(element)[1]}")
+                best_of_all_stack = np.vstack([best_of_all_stack, self.decode(element)])
+
+            if gen == self.generation-1:
+                for index, element in enumerate(new_population):
+                    best_of_generation_stack = np.vstack([best_of_generation_stack, self.decode(element)[1]])
+                
+                best_of_generation = self.decode(new_population[np.argmin(best_of_generation_stack)])
+
+        best_of_all_find = best_of_all_stack[0][1]
+        for index, _ in enumerate(best_of_all_stack):
+            if best_of_all_find > best_of_all_stack[index][1]:
+                best_of_all = best_of_all_stack[index]
 
         end_time = time.time()
         execution_time = end_time - start_time
 
-model = GA()
-model.run() 
+        print()
+        print(f"Execution_time:\t{execution_time}")
+        print()
+        print(f"BEST_OF:\t\tPARAMETERS:\t\t\tOBJ_VALUE:")
+        print(f"Generation\t\t{best_of_generation[0]}\t\t{best_of_generation[1]}")
+        print(f"All_time\t\t{best_of_all[0]}\t\t{best_of_all[1]}")
+
+        return best_of_generation, best_of_all
