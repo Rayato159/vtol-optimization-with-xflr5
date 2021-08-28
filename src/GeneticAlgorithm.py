@@ -3,8 +3,6 @@
 
 import numpy as np
 import time
-
-from numpy.core.arrayprint import dtype_is_implied
 from ObjectiveFunction import Obj_Func
 
 class GA:
@@ -112,6 +110,7 @@ class GA:
         return childs
     
     def run(self):
+        count = 0
         pool_of_generation = self.getPopulation()
         best_of_generation_stack = np.empty((0, 1))
         best_of_generation = np.empty((0, 2))
@@ -149,6 +148,8 @@ class GA:
                     best_of_generation_stack = np.vstack([best_of_generation_stack, self.decode(element)[1]])
                 
                 best_of_generation = self.decode(new_population[np.argmin(best_of_generation_stack)])
+            
+            count = gen+1
 
         best_of_all_find = best_of_all_stack[0][1]
         for index, _ in enumerate(best_of_all_stack):
@@ -159,7 +160,7 @@ class GA:
         execution_time = end_time - start_time
 
         print()
-        print(f"Execution_time:\t{execution_time}")
+        print(f"Execution_time:\t{round(execution_time, 2)}, @Generation: {count}")
         print()
         print(f"BEST_OF:\t\tPARAMETERS:\t\t\tOBJ_VALUE:")
         print(f"Generation\t\t{best_of_generation[0]}\t\t{best_of_generation[1]}")
