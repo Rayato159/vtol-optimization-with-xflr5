@@ -150,7 +150,7 @@ class GA:
                 best_of_all_stack = np.vstack([best_of_all_stack, self.decode(element)])
 
             check_for_next_gen = [count for _, count in collections.Counter(dupe_check).items()]
-            if float(max(check_for_next_gen)/50) > self.rate:
+            if float(max(check_for_next_gen)/self.population_num) > self.rate:
                 for index, element in enumerate(new_population):
                     best_of_generation_stack = np.vstack([best_of_generation_stack, self.decode(element)[1]])
                 
@@ -173,6 +173,7 @@ class GA:
 
         print()
         print(f"Execution_time:\t{round(execution_time, 2)} sec, @Generation: {count}")
+        print(f"presicion: {float(max(check_for_next_gen)/self.population_num)}")
         print()
         print(f"BEST_OF:\t\tPARAMETERS:\t\t\tOBJ_VALUE:")
         print(f"Generation\t\t{best_of_generation[0]}\t\t{best_of_generation[1]}")

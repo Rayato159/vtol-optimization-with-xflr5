@@ -1,6 +1,6 @@
 from GeneticAlgorithm import GA
 
-test = GA()
+test = GA(rate=0.6)
 solution = test.run()
 
 print()
