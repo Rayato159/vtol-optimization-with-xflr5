@@ -8,14 +8,14 @@ from ObjectiveFunction import Obj_Func
 
 class GA:
     def __init__(self,
-                chorosome_length=16, 
-                bits=8,
+                chorosome_length=32, 
+                bits=16,
                 population_num=100, 
                 generation=100, 
                 crossover_prob=0.9, 
                 mutation_prob=0.03, 
                 k=3,
-                rate=0.4):
+                rate=1.0):
 
         self.bits = bits
         self.chorosome_length= chorosome_length
@@ -133,10 +133,6 @@ class GA:
                 childs = self.crossover(parents)
                 mutated_childs = self.mutation(childs)
                 new_population = np.vstack([new_population, mutated_childs])
-
-                print()
-                print(f"Obj_value_for_mutated_chlid #1 at generation #{gen+1} : {mutated_childs[0]}, {self.decode(mutated_childs[0])[1]}")
-                print(f"Obj_value_for_mutated_chlid #2 at generation #{gen+1} : {mutated_childs[1]}, {self.decode(mutated_childs[0])[1]}")
             
             pool_of_generation = new_population
             count = gen+1
