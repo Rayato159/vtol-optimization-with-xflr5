@@ -8,17 +8,17 @@ from ObjectiveFunction import Obj_Func
 
 class GA:
     def __init__(self,
-                chorosome_length=32, 
-                bits=16,
-                population_num=100, 
-                generation=100, 
+                chromosome_length=44, 
+                bits=4,
+                population_num=400, 
+                generation=1600, 
                 crossover_prob=0.9, 
                 mutation_prob=0.03, 
                 k=3,
                 rate=1.0):
 
         self.bits = bits
-        self.chorosome_length= chorosome_length
+        self.chromosome_length = chromosome_length
         self.population_num = population_num
         self.generation = generation
         self.crossover_prob = crossover_prob
@@ -28,7 +28,20 @@ class GA:
         self.rate = rate
     
     def getPopulation(self):
-        return np.random.randint(2, size=(self.population_num, self.chorosome_length))
+        population = np.empty((0, self.chromosome_length))
+        for _ in range(self.population_num):
+            while True:
+                rand_chromosome = np.random.randint(2, size=(self.chromosome_length))
+                decode_rand = self.obj_func.result(self.decode(rand_chromosome)[0])
+                print(decode_rand)
+                if(
+                    decode_rand[0] > 0
+                    and decode_rand[1] > 0.008
+                    and decode_rand[2] < 0
+                ):
+                    break
+            population = np.vstack([population, rand_chromosome])
+        return population
 
     def decimal(self, binary):
         decimal_result = 0
@@ -43,9 +56,30 @@ class GA:
 
     def decode(self, 
                binary, 
-               lower_bounds=[-2, -2], 
-               upper_bounds=[2, 2]
-               ):
+               lower_bounds=[
+                   2,
+                   0.15,
+                   0.056,
+                   0.3,
+                   0.13,
+                   0.2,
+                   0.13,
+                   0.058,
+                   0.29
+                ], 
+
+               upper_bounds=[
+                   3.32,
+                   0.2,
+                   0.08,
+                   0.5,
+                   0.2,
+                   0.29,
+                   0.2,
+                   0.09,
+                   0.84
+               ]
+    ):
 
         decode = []
         for i in range(len(lower_bounds)):
@@ -60,10 +94,10 @@ class GA:
             return 0
 
     def select_parents(self, population):
-        winner_parents = np.empty((2, self.chorosome_length))
+        winner_parents = np.empty((2, self.chromosome_length))
         
         for i in range(2):
-            selected_parents = np.empty((self.k, self.chorosome_length))
+            selected_parents = np.empty((self.k, self.chromosome_length))
 
             for j in range(self.k):
                 rand_num = np.random.randint(len(population))
@@ -81,13 +115,13 @@ class GA:
         rand_crossover_prob = np.random.rand()
 
         if rand_crossover_prob < self.crossover_prob:
-            section_1 = np.random.randint(self.chorosome_length)
-            while section_1 == self.chorosome_length-1:
-                section_1 = np.random.randint(self.chorosome_length)
+            section_1 = np.random.randint(self.chromosome_length)
+            while section_1 == self.chromosome_length-1:
+                section_1 = np.random.randint(self.chromosome_length)
 
-            section_2 = np.random.randint(self.chorosome_length)
+            section_2 = np.random.randint(self.chromosome_length)
             while section_2 <= section_1:
-                section_2 = np.random.randint(self.chorosome_length)
+                section_2 = np.random.randint(self.chromosome_length)
 
             for index, _ in enumerate(parents[0]):
                 if section_1 <= index <= section_2:
@@ -126,12 +160,27 @@ class GA:
             print(f"LINE\t{index+1}\tf={self.decode(element)[1]}")
 
         for gen in range(self.generation):
-            new_population = np.empty((0, self.chorosome_length))
+            new_population = np.empty((0, self.chromosome_length))
 
             for _ in range(int(self.population_num/2)):
-                parents = self.select_parents(pool_of_generation)
-                childs = self.crossover(parents)
-                mutated_childs = self.mutation(childs)
+                #constraints
+                while True:
+                    parents = self.select_parents(pool_of_generation)
+                    childs = self.crossover(parents)
+                    mutated_childs = self.mutation(childs)
+
+                    decode_1 = self.obj_func.result(self.decode(mutated_childs[0])[0])
+                    decode_2 = self.obj_func.result(self.decode(mutated_childs[1])[0])
+                    
+                    if(decode_1[0] > 0
+                        and decode_2[0] > 0
+                        and decode_1[1] > 0.008
+                        and decode_2[1] > 0.008
+                        and decode_1[2] < 0
+                        and decode_2[2] < 0
+                    ):
+                        break
+
                 new_population = np.vstack([new_population, mutated_childs])
             
             pool_of_generation = new_population
@@ -167,6 +216,9 @@ class GA:
         end_time = time.time()
         execution_time = end_time - start_time
 
+        result_generation = self.obj_func.result(best_of_generation[0])
+        result_all = self.obj_func.result(best_of_all[0])
+
         print()
         print(f"Execution_time:\t{round(execution_time, 2)} sec, @Generation: {count}")
         print(f"presicion: {float(max(check_for_next_gen)/self.population_num)}")
@@ -174,5 +226,9 @@ class GA:
         print(f"BEST_OF:\t\tPARAMETERS:\t\t\tOBJ_VALUE:")
         print(f"Generation\t\t{best_of_generation[0]}\t\t{best_of_generation[1]}")
         print(f"All_time\t\t{best_of_all[0]}\t\t{best_of_all[1]}")
+        print()
+        print(f"Generation\t\t{best_of_generation[0]}: {result_generation}")
+        print()
+        print(f"All_time\t\t{best_of_all[0]}: {result_all}")
 
-        return best_of_generation[0], best_of_generation[1], best_of_all[0], best_of_all[1]
+        return best_of_generation[0], result_generation, best_of_all[0], result_all

@@ -1,6 +1,0 @@
-UAV,Wing Span,Aspect Ratio,Wing Area (m^2),Empty Weight (kg),Payload (kg),Cruise Speed (m/s),Endurance (h),Range (km),Battery (Ah),Altitude (m)
-KapetAir,3.3,11,1,6.5,1,18.06,2,120,20,4175
-DeltaQuad#Map,2.35,6.2,0.9,5,1.2,16,1.833,100,23,4000
-Trinity,2.4,9,0.64,5,0.7,17,1.5,100,20,4500
-Foxtech Pegasus-230 VTOL,2.3,9,2.33,8,1,20,1.833,130,21,3000
-Falcon V,3,8.8,1.12,6,5,25,2,100,21,3000
