@@ -7,7 +7,6 @@ import time
 # import collections
 from Objective import Aerodynamics
 from matplotlib import pyplot as plt
-import seaborn as sns
 
 class GA:
     def __init__(self,
@@ -18,7 +17,6 @@ class GA:
                 crossover_prob=0.9, 
                 mutation_prob=0.03, 
                 k=3,
-                # rate=1.0,
                 lower_bounds=[],
                 upper_bounds=[]
                 ):
@@ -31,7 +29,6 @@ class GA:
         self.mutation_prob = mutation_prob
         self.k = int(k)
         self.obj_func = Aerodynamics()
-        # self.rate = rate
         self.lower_bounds = lower_bounds
         self.upper_bounds = upper_bounds
         self.camera = 0.153
@@ -138,7 +135,6 @@ class GA:
     def run(self):
         count = 0
         pool_of_generation = self.getPopulation()
-        best_of_generation_stack = np.empty((0, 1))
         best_of_generation = np.empty((0, 2))
         best_of_all_stack = np.empty((0, 2))
         best_of_all = np.empty((0, 2))
@@ -183,26 +179,16 @@ class GA:
 
             print()
             print(f"Generation #{gen+1}")
-            # dupe_check = []
             for index, element in enumerate(new_population):
                 print(f"LINE\t{index+1}\tf={self.decode(element)[1]}")
-                # dupe_check.append(self.decode(element)[1])
-                stack_plot.append(self.decode(element)[1])
                 best_of_all_stack = np.vstack([best_of_all_stack, self.decode(element)])
 
-            # check_for_next_gen = [count for _, count in collections.Counter(dupe_check).items()]
-            # if float(max(check_for_next_gen)/self.population_num) > self.rate:
-            #     for index, element in enumerate(new_population):
-            #         best_of_generation_stack = np.vstack([best_of_generation_stack, self.decode(element)[1]])
-                
-            #     best_of_generation = self.decode(new_population[np.argmin(best_of_generation_stack)])
-            #     break
-
-            if gen == self.generation-1:
-                for index, element in enumerate(new_population):
-                    best_of_generation_stack = np.vstack([best_of_generation_stack, self.decode(element)[1]])
-                
-                best_of_generation = self.decode(new_population[np.argmin(best_of_generation_stack)])
+            best_of_generation_stack = np.empty((0, 1))
+            for index, element in enumerate(new_population):
+                best_of_generation_stack = np.vstack([best_of_generation_stack, self.decode(element)[1]])
+            
+            best_of_generation = self.decode(new_population[np.argmin(best_of_generation_stack)])
+            stack_plot.append(best_of_generation[1])
 
         best_of_all_find = np.empty((0, 1))
         for item in best_of_all_stack:
@@ -212,13 +198,9 @@ class GA:
         end_time = time.time()
         execution_time = end_time - start_time
 
+        x_plot = np.arange(0, self.generation, 1)
         plt.title(f'Generation: {self.generation}, Population: {self.population_num}')
-        # plt.ylabel('Freq')
-        # plt.xlabel('CD')
-        # plt.hist(stack_plot, bins=20)
-        # plt.show()
-        data = {'CD': stack_plot}
-        sns.histplot(data=data, x="CD", element="step", bins=10)
+        plt.plot(x_plot, stack_plot, color='#FF0075')
         plt.show()
 
         print()
@@ -307,8 +289,6 @@ class GA:
 
         print()
         print(f"Execution_time:\t{round(execution_time, 2)} sec, @Generation: {count}")
-        # print(f"presicion: {float(max(check_for_next_gen)/self.population_num)}")
-        # print()
         print(f"BEST_OF:\t\tPARAMETERS:\t\t\tOBJ_VALUE:")
         print(f"Generation\t\t{best_of_generation[0]}\t\t{best_of_generation[1]}")
         print(f"All_time\t\t{best_of_all[0]}\t\t{best_of_all[1]}")
@@ -318,3 +298,4 @@ class GA:
         print(f"All_time\t\t{best_of_all[0]}: {result_all}")
 
         return best_of_generation[0], result_generation, best_of_all[0], result_all
+        # return stack_plot
