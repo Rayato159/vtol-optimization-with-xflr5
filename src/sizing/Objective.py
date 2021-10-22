@@ -3,7 +3,7 @@ import numpy as np
 class Aerodynamics:
     def __init__(self):
         self.density = 1.2148
-        self.velocity = 20
+        self.velocity = 22
         self.viscous = 1.78621e-5
         self.mach = 0.0588
 
@@ -19,6 +19,7 @@ class Aerodynamics:
     def skin_friction_coef(self, Re):
         if(Re > 5e5):
             return (0.455/((np.log10(Re))**2.58)) - (1700/Re)
+            # return (0.455/(((np.log10(Re))**2.58)*(1+(0.144*self.mach**2))**0.58))
         else:
             return 1.328/np.sqrt(Re)
 
@@ -40,22 +41,21 @@ class Aerodynamics:
         b = (2.3**2*np.cos(swept)**2*t_c**2*(1+(5*np.cos(swept)**2)))/(2*(1-(self.mach*np.cos(swept))**2))
         return 1 + a + b
 
-    def wing_weight(self, MTOW, S, b, taper_ratio):
-        A = 4.22*S
-        B = 1.642e-6*((2.5*b**3*MTOW*9.81*(1+(2*taper_ratio)))/(0.11*S*(1+taper_ratio)))
-        return A + B
+    def wing_weight(self, MTOW, S, b, t_c):
+        A = 45.42*S
+        B = 8.71e-5*((2.5*(b**3)*np.sqrt(25*MTOW*9.81**2))/(S*t_c))
+        return (A + B)/9.81
     
-    def h_tail_weight(self, MTOW, S_h, b_h, mac, lv):
-        A = 5.25*S_h
-        # B = 0.8e-6*((2.5*b_h**3*MTOW*9.81*mac*np.sqrt(S_h))/(0.09*(0.7*b*0.55+mac)*S_h**1.5))
-        B = 0.8e-6*((2.5*b_h**3*MTOW*9.81*mac*np.sqrt(S_h))/(0.09*lv*S_h**1.5))
-        return A + B
+    # def h_tail_weight(self, MTOW, S_h, b_h, mac, lv):
+    #     A = 5.25*S_h
+    #     B = 0.8e-6*((2.5*b_h**3*(MTOW)*mac*np.sqrt(S_h))/(0.09*lv*S_h**1.5))
+    #     return (A + B)
 
-    def v_tail_weight(self, MTOW, S_v, S, b_v, swept_v):
-        swept_v = np.deg2rad(swept_v)
-        A = 2.62*S_v
-        B = 1.5e-5*((2.5*b_v**3*(8+(0.44*((MTOW*9.81)/S))))/(0.09*np.cos(swept_v)**2))
-        return A + B
+    # def v_tail_weight(self, MTOW, S_v, S, b_v, swept_v):
+    #     swept_v = np.deg2rad(swept_v)
+    #     A = 2.62*S_v
+    #     B = 1.5e-5*((2.5*b_v**3*(8+(0.44*((MTOW)/S))))/(0.09*np.cos(swept_v)**2))
+    #     return (A + B)
 
     def total_drag(self, Cd0, Cdi):
         return Cd0 + Cdi
@@ -176,47 +176,49 @@ class Aerodynamics:
         Cd0_v = self.wing_form_factor(x[9], x[10])*Cf_v*((mac_v*b_v)/S)
         lv = 1.34-mac*0.25-mac_v*0.75
 
-        w_wing = self.wing_weight(x[0], S, x[4], x[1])
-        w_h_tail = self.h_tail_weight(x[0], S_h, b_h, mac, lv)
-        w_v_tail = self.v_tail_weight(x[0], S_v, S, b_v, x[8])
+        w_wing = self.wing_weight(x[0], S, x[4], x[3])
+        w_h_tail = self.wing_weight(x[0], S_h, b_h, x[5])
+        w_v_tail = self.wing_weight(x[0], S_v, b_v, x[9])
+        # w_h_tail = self.h_tail_weight(x[0], S_h, b_h, mac, lv)
+        # w_v_tail = self.v_tail_weight(x[0], S_v, S, b_v, x[8])
 
 
         # total_drag_coef
         total_drag_coef = total_drag_wing + Cd0_h + Cd0_v
 
         return (
-            x[0], 
-            cr, 
-            ct, 
-            x[1], 
-            x[2], 
-            x[4], 
-            mac, 
-            S, 
-            AR, 
-            e, 
-            Cl, 
-            Cdi, 
-            Cd0, 
-            x[5],
-            x[6],
-            b_h,
-            c_h,
-            Cd0_h,
-            x[7],
-            x[8],
-            x[9],
-            x[10],
-            b_v,
-            cr_v,
-            ct_v,
-            mac_v,
-            Cd0_v,
-            total_drag_coef,
-            S_h,
-            S_v,
+            x[0], #0
+            cr, #1
+            ct, #2
+            x[1], #3
+            x[2], #4
+            x[4], #5
+            mac, #6
+            S, #7
+            AR, #8
+            e, #9
+            Cl, #10
+            Cdi, #11
+            Cd0, #12
+            x[5], #13
+            x[6], #14
+            b_h, #15
+            c_h, #16
+            Cd0_h, #17
+            x[7], #18
+            x[8], #19
+            x[9], #20
+            x[10], #21
+            b_v, #22
+            cr_v, #23
+            ct_v, #24
+            mac_v, #25
+            Cd0_v, #26
+            total_drag_coef, #27
+            S_h, #28
+            S_v, #29
             w_wing, #30
             w_h_tail, #31
             w_v_tail, #32
-            lv
+            lv #33
         )

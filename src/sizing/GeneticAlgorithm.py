@@ -4,7 +4,6 @@
 import numpy as np
 import time
 
-# import collections
 from Objective import Aerodynamics
 from matplotlib import pyplot as plt
 
@@ -32,7 +31,7 @@ class GA:
         self.lower_bounds = lower_bounds
         self.upper_bounds = upper_bounds
         self.camera = 0.153
-        self.motors = 3.2
+        self.motors = 1.9
         self.battery = 6.3
     
     def getPopulation(self):
@@ -198,18 +197,20 @@ class GA:
         end_time = time.time()
         execution_time = end_time - start_time
 
-        x_plot = np.arange(0, self.generation, 1)
-        plt.title(f'Generation: {self.generation}, Population: {self.population_num}')
-        plt.plot(x_plot, stack_plot, color='#FF0075')
-        plt.show()
+        # x_plot = np.arange(0, self.generation, 1)
+        # plt.title(f'Generation: {self.generation}, Population: {self.population_num}')
+        # plt.plot(x_plot, stack_plot, color='#FF0075')
+        # plt.show()
 
         print()
         print('best_of_generation')
         result_generation = self.obj_func.result(best_of_generation[0])
 
         w_wing = self.obj_func.wing_weight(result_generation[0], result_generation[7], result_generation[4], result_generation[1])
-        w_h_tail = self.obj_func.h_tail_weight(result_generation[0], result_generation[28], result_generation[15], result_generation[4], result_generation[6])
-        w_v_tail = self.obj_func.v_tail_weight(result_generation[0], result_generation[29], result_generation[7], result_generation[22], result_generation[21])
+        # w_h_tail = self.obj_func.h_tail_weight(result_generation[0], result_generation[28], result_generation[15], result_generation[4], result_generation[6])
+        # w_v_tail = self.obj_func.v_tail_weight(result_generation[0], result_generation[29], result_generation[7], result_generation[22], result_generation[21])
+        w_h_tail = self.obj_func.wing_weight(result_generation[0], result_generation[28], result_generation[15], 0.09)
+        w_v_tail = self.obj_func.wing_weight(result_generation[0], result_generation[29], result_generation[22], 0.09)
 
         print(f'MTOW:\t{round(result_generation[0], 2)}')
         print(f'cr:\t{round(result_generation[1], 2)}')
@@ -250,8 +251,10 @@ class GA:
         result_all = self.obj_func.result(best_of_all[0])
 
         w_wing = self.obj_func.wing_weight(result_all[0], result_all[7], result_all[4], result_all[1])
-        w_h_tail = self.obj_func.h_tail_weight(result_all[0], result_all[28], result_all[15], result_all[4], result_all[6])
-        w_v_tail = self.obj_func.v_tail_weight(result_all[0], result_all[29], result_all[7], result_all[22], result_all[21])
+        w_h_tail = self.obj_func.wing_weight(result_all[0], result_all[28], result_all[15], 0.09)
+        w_v_tail = self.obj_func.wing_weight(result_all[0], result_all[29], result_all[22], 0.09)
+        # w_h_tail = self.obj_func.h_tail_weight(result_all[0], result_all[28], result_all[15], result_all[4], result_all[6])
+        # w_v_tail = self.obj_func.v_tail_weight(result_all[0], result_all[29], result_all[7], result_all[22], result_all[21])
 
         print(f'MTOW:\t{round(result_all[0], 2)}')
         print(f'cr:\t{round(result_all[1], 2)}')
@@ -297,5 +300,5 @@ class GA:
         print()
         print(f"All_time\t\t{best_of_all[0]}: {result_all}")
 
-        return best_of_generation[0], result_generation, best_of_all[0], result_all
-        # return stack_plot
+        # return best_of_generation[0], result_generation, best_of_all[0], result_all
+        return stack_plot
